@@ -5,3 +5,4 @@ dist
 postgres_data
 .env.docker
 .DS_Store
+CLAUDE.md
