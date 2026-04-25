@@ -19,7 +19,8 @@ app.use(express.json());
 
 const placeholder = (req, res) => res.json({ message: "route coming soon" });
 
-app.use("/api/auth", placeholder);
+const authRouter = require("./routes/auth");
+app.use("/api/auth", authRouter);
 app.use("/api/users", placeholder);
 app.use("/api/stores", placeholder);
 app.use("/api/warehouses", placeholder);
