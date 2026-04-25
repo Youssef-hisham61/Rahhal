@@ -7,6 +7,7 @@ const rateLimit = require("express-rate-limit");
 const { pool } = require("./db/pool");
 const { initWebSocket, broadcast } = require("./ws/socket");
 const usersRouter = require("./routes/users");
+const storesRouter = require("./routes/stores");
 const runMigrations = require("./db/migrate");
 const seedOwner = require("./db/seed");
 
@@ -23,7 +24,7 @@ const placeholder = (req, res) => res.json({ message: "route coming soon" });
 const authRouter = require("./routes/auth");
 app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
-app.use("/api/stores", placeholder);
+app.use("/api/stores", storesRouter);
 app.use("/api/warehouses", placeholder);
 app.use("/api/categories", placeholder);
 app.use("/api/products", placeholder);

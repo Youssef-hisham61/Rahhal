@@ -1,31 +1,38 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import Layout from './components/Layout';
+import Login from './pages/Login';
+import { useT } from './hooks/useT';
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute({ children, titleKey = '' }) {
+  const t = useT();
   const token = localStorage.getItem('access_token');
   if (!token) return <Navigate to="/login" replace />;
-  return children;
+  return <Layout title={titleKey ? t(titleKey) : ''}>{children}</Layout>;
 }
 
-const Page = ({ name }) => <div>{name}</div>;
+function Page({ titleKey }) {
+  const t = useT();
+  return <div style={{ color: 'var(--text)', fontSize: '15px' }}>{t(titleKey)}</div>;
+}
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Page name="Login" />} />
-      <Route path="/" element={<ProtectedRoute><Page name="Dashboard" /></ProtectedRoute>} />
-      <Route path="/requests" element={<ProtectedRoute><Page name="Requests" /></ProtectedRoute>} />
-      <Route path="/transfers" element={<ProtectedRoute><Page name="Transfers" /></ProtectedRoute>} />
-      <Route path="/inventory" element={<ProtectedRoute><Page name="Inventory" /></ProtectedRoute>} />
-      <Route path="/shipments" element={<ProtectedRoute><Page name="Shipments" /></ProtectedRoute>} />
-      <Route path="/returns" element={<ProtectedRoute><Page name="Returns" /></ProtectedRoute>} />
-      <Route path="/reports" element={<ProtectedRoute><Page name="Reports" /></ProtectedRoute>} />
-      <Route path="/settings/products" element={<ProtectedRoute><Page name="Settings - Products" /></ProtectedRoute>} />
-      <Route path="/settings/categories" element={<ProtectedRoute><Page name="Settings - Categories" /></ProtectedRoute>} />
-      <Route path="/settings/merchants" element={<ProtectedRoute><Page name="Settings - Merchants" /></ProtectedRoute>} />
-      <Route path="/settings/warehouses" element={<ProtectedRoute><Page name="Settings - Warehouses" /></ProtectedRoute>} />
-      <Route path="/settings/branches" element={<ProtectedRoute><Page name="Settings - Branches" /></ProtectedRoute>} />
-      <Route path="/settings/users" element={<ProtectedRoute><Page name="Settings - Users" /></ProtectedRoute>} />
-      <Route path="/notifications" element={<ProtectedRoute><Page name="Notifications" /></ProtectedRoute>} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/"                    element={<ProtectedRoute titleKey="nav.dashboard"><Page titleKey="nav.dashboard" /></ProtectedRoute>} />
+      <Route path="/requests"            element={<ProtectedRoute titleKey="nav.requests"><Page titleKey="nav.requests" /></ProtectedRoute>} />
+      <Route path="/transfers"           element={<ProtectedRoute titleKey="nav.transfers"><Page titleKey="nav.transfers" /></ProtectedRoute>} />
+      <Route path="/inventory"           element={<ProtectedRoute titleKey="nav.inventory"><Page titleKey="nav.inventory" /></ProtectedRoute>} />
+      <Route path="/shipments"           element={<ProtectedRoute titleKey="nav.shipments"><Page titleKey="nav.shipments" /></ProtectedRoute>} />
+      <Route path="/returns"             element={<ProtectedRoute titleKey="nav.returns"><Page titleKey="nav.returns" /></ProtectedRoute>} />
+      <Route path="/reports"             element={<ProtectedRoute titleKey="nav.reports"><Page titleKey="nav.reports" /></ProtectedRoute>} />
+      <Route path="/settings/products"   element={<ProtectedRoute titleKey="nav.products"><Page titleKey="nav.products" /></ProtectedRoute>} />
+      <Route path="/settings/categories" element={<ProtectedRoute titleKey="nav.categories"><Page titleKey="nav.categories" /></ProtectedRoute>} />
+      <Route path="/settings/merchants"  element={<ProtectedRoute titleKey="label.merchant"><Page titleKey="label.merchant" /></ProtectedRoute>} />
+      <Route path="/settings/warehouses" element={<ProtectedRoute titleKey="nav.warehouses"><Page titleKey="nav.warehouses" /></ProtectedRoute>} />
+      <Route path="/settings/branches"   element={<ProtectedRoute titleKey="nav.branches"><Page titleKey="nav.branches" /></ProtectedRoute>} />
+      <Route path="/settings/users"      element={<ProtectedRoute titleKey="nav.users"><Page titleKey="nav.users" /></ProtectedRoute>} />
+      <Route path="/notifications"       element={<ProtectedRoute titleKey="nav.notifications"><Page titleKey="nav.notifications" /></ProtectedRoute>} />
     </Routes>
   );
 }
