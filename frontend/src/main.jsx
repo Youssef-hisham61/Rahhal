@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n/index.js';
 import App from './App.jsx';
-import './i18n/index.js';
+import './index.css';
 
 document.documentElement.dir = 'rtl';
 document.documentElement.lang = 'ar';
