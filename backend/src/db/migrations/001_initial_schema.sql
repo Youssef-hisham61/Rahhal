@@ -1,15 +1,46 @@
--- Enums
-CREATE TYPE user_role AS ENUM ('owner', 'admin', 'supervisor', 'worker', 'viewer');
-CREATE TYPE request_status AS ENUM ('pending', 'approved', 'rejected', 'dispatched');
-CREATE TYPE transfer_status AS ENUM ('pending', 'approved', 'in_transit', 'received', 'confirmed', 'rejected');
-CREATE TYPE shipment_status AS ENUM ('arriving', 'arrived', 'verified', 'rejected');
-CREATE TYPE return_condition AS ENUM ('resellable', 'damaged');
-CREATE TYPE return_status AS ENUM ('pending', 'approved_resellable', 'approved_damaged', 'rejected');
-CREATE TYPE count_status AS ENUM ('scheduled', 'in_progress', 'completed');
-CREATE TYPE alert_type AS ENUM ('low_stock', 'out_of_stock');
+-- ─── Enums ────────────────────────────────────────────────────────────────────
+DO $$ BEGIN
+  CREATE TYPE user_role AS ENUM ('owner', 'admin', 'supervisor', 'worker', 'viewer');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
--- stores
-CREATE TABLE stores (
+DO $$ BEGIN
+  CREATE TYPE request_status AS ENUM ('pending', 'approved', 'rejected', 'dispatched');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE transfer_status AS ENUM ('pending', 'approved', 'in_transit', 'received', 'confirmed', 'rejected');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE shipment_status AS ENUM ('arriving', 'arrived', 'verified', 'rejected');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE return_condition AS ENUM ('resellable', 'damaged');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE return_status AS ENUM ('pending', 'approved_resellable', 'approved_damaged', 'rejected');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE count_status AS ENUM ('scheduled', 'in_progress', 'completed');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE alert_type AS ENUM ('low_stock', 'out_of_stock');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+-- ─── Tables ───────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS stores (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100) NOT NULL,
   name_en VARCHAR(100) NOT NULL,
@@ -18,8 +49,7 @@ CREATE TABLE stores (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- warehouses
-CREATE TABLE warehouses (
+CREATE TABLE IF NOT EXISTS warehouses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   store_id UUID NOT NULL REFERENCES stores(id),
   name VARCHAR(100) NOT NULL,
@@ -29,8 +59,7 @@ CREATE TABLE warehouses (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- categories
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100) NOT NULL,
   name_en VARCHAR(100) NOT NULL,
@@ -38,8 +67,7 @@ CREATE TABLE categories (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- products
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(200) NOT NULL,
   name_en VARCHAR(200) NOT NULL,
@@ -50,11 +78,11 @@ CREATE TABLE products (
   archived BOOLEAN NOT NULL DEFAULT false,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE INDEX idx_products_barcode ON products(barcode);
-CREATE INDEX idx_products_sku ON products(sku);
 
--- inventory
-CREATE TABLE inventory (
+CREATE INDEX IF NOT EXISTS idx_products_barcode ON products(barcode);
+CREATE INDEX IF NOT EXISTS idx_products_sku ON products(sku);
+
+CREATE TABLE IF NOT EXISTS inventory (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   warehouse_id UUID NOT NULL REFERENCES warehouses(id),
   product_id UUID NOT NULL REFERENCES products(id),
@@ -64,8 +92,7 @@ CREATE TABLE inventory (
   UNIQUE(warehouse_id, product_id)
 );
 
--- merchants
-CREATE TABLE merchants (
+CREATE TABLE IF NOT EXISTS merchants (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(200) NOT NULL,
   name_en VARCHAR(200),
@@ -74,10 +101,10 @@ CREATE TABLE merchants (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- users
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name VARCHAR(200) NOT NULL,
+  name_ar VARCHAR(200) NOT NULL,
+  name_en VARCHAR(200) NOT NULL,
   email VARCHAR(200) UNIQUE NOT NULL,
   password_hash VARCHAR(200) NOT NULL,
   role user_role NOT NULL DEFAULT 'worker',
@@ -86,8 +113,7 @@ CREATE TABLE users (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- sessions (refresh tokens)
-CREATE TABLE sessions (
+CREATE TABLE IF NOT EXISTS sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   refresh_token TEXT NOT NULL UNIQUE,
@@ -95,11 +121,11 @@ CREATE TABLE sessions (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   expires_at TIMESTAMPTZ NOT NULL
 );
-CREATE INDEX idx_sessions_token ON sessions(refresh_token);
-CREATE INDEX idx_sessions_user ON sessions(user_id);
 
--- release_requests
-CREATE TABLE release_requests (
+CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(refresh_token);
+CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+
+CREATE TABLE IF NOT EXISTS release_requests (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   product_id UUID NOT NULL REFERENCES products(id),
   from_warehouse_id UUID NOT NULL REFERENCES warehouses(id),
@@ -114,8 +140,7 @@ CREATE TABLE release_requests (
   CONSTRAINT no_self_approval CHECK (requested_by != actioned_by)
 );
 
--- transfers
-CREATE TABLE transfers (
+CREATE TABLE IF NOT EXISTS transfers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   product_id UUID NOT NULL REFERENCES products(id),
   from_warehouse_id UUID NOT NULL REFERENCES warehouses(id),
@@ -131,8 +156,7 @@ CREATE TABLE transfers (
   reason TEXT
 );
 
--- shipments
-CREATE TABLE shipments (
+CREATE TABLE IF NOT EXISTS shipments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   warehouse_id UUID NOT NULL REFERENCES warehouses(id),
   merchant_id UUID REFERENCES merchants(id),
@@ -142,8 +166,7 @@ CREATE TABLE shipments (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- shipment_items
-CREATE TABLE shipment_items (
+CREATE TABLE IF NOT EXISTS shipment_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   shipment_id UUID NOT NULL REFERENCES shipments(id) ON DELETE CASCADE,
   product_id UUID REFERENCES products(id),
@@ -151,8 +174,7 @@ CREATE TABLE shipment_items (
   quantity INTEGER NOT NULL CHECK (quantity > 0)
 );
 
--- returns
-CREATE TABLE returns (
+CREATE TABLE IF NOT EXISTS returns (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   product_id UUID NOT NULL REFERENCES products(id),
   warehouse_id UUID NOT NULL REFERENCES warehouses(id),
@@ -166,8 +188,7 @@ CREATE TABLE returns (
   notes TEXT
 );
 
--- audit_logs
-CREATE TABLE audit_logs (
+CREATE TABLE IF NOT EXISTS audit_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   user_id UUID REFERENCES users(id),
@@ -181,12 +202,12 @@ CREATE TABLE audit_logs (
   new_value JSONB,
   ip_address VARCHAR(50)
 );
-CREATE INDEX idx_audit_timestamp ON audit_logs(timestamp);
-CREATE INDEX idx_audit_user ON audit_logs(user_id);
-CREATE INDEX idx_audit_action ON audit_logs(action);
 
--- stock_alerts
-CREATE TABLE stock_alerts (
+CREATE INDEX IF NOT EXISTS idx_audit_timestamp ON audit_logs(timestamp);
+CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_action ON audit_logs(action);
+
+CREATE TABLE IF NOT EXISTS stock_alerts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   warehouse_id UUID NOT NULL REFERENCES warehouses(id),
   product_id UUID NOT NULL REFERENCES products(id),
@@ -197,8 +218,7 @@ CREATE TABLE stock_alerts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- count_requests
-CREATE TABLE count_requests (
+CREATE TABLE IF NOT EXISTS count_requests (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   warehouse_id UUID NOT NULL REFERENCES warehouses(id),
   assigned_to UUID NOT NULL REFERENCES users(id),
@@ -208,8 +228,7 @@ CREATE TABLE count_requests (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- notifications
-CREATE TABLE notifications (
+CREATE TABLE IF NOT EXISTS notifications (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   type VARCHAR(100) NOT NULL,
@@ -218,9 +237,10 @@ CREATE TABLE notifications (
   read BOOLEAN NOT NULL DEFAULT false,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE INDEX idx_notifications_user ON notifications(user_id);
 
--- PostgreSQL trigger: notify on inventory change
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
+
+-- ─── Trigger ──────────────────────────────────────────────────────────────────
 CREATE OR REPLACE FUNCTION notify_inventory_change()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -229,6 +249,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS inventory_change_trigger ON inventory;
 CREATE TRIGGER inventory_change_trigger
 AFTER INSERT OR UPDATE ON inventory
 FOR EACH ROW EXECUTE FUNCTION notify_inventory_change();

@@ -1,7 +1,7 @@
 node_modules
 .env
 *.log
-.git
-.gitignore
 dist
 postgres_data
+.env.docker
+.DS_Store

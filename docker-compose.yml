@@ -1,24 +1,43 @@
-version: '3.9'
-
 services:
   postgres:
     image: postgres:16-alpine
+    env_file: .env.docker
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rahhal_user -d rahhal_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - rahhal-network
-    restart: unless-stopped
 
   backend:
     build: ./backend
+    env_file: .env.docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     volumes:
       - ./backend/src:/app/src
     networks:
       - rahhal-network
-    restart: unless-stopped
 
   frontend:
     build: ./frontend
+    env_file: .env.docker
+    depends_on:
+      backend:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
     volumes:
       - ./frontend/src:/app/src
     networks:
@@ -27,6 +46,9 @@ services:
 
   nginx:
     build: ./nginx
+    depends_on:
+      - frontend
+      - backend
     ports:
       - "80:80"
       - "443:443"
