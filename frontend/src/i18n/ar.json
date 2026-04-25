@@ -27,7 +27,6 @@
   "action.export": "تصدير",
   "role.owner": "صاحب النظام",
   "role.admin": "مدير النظام",
-  "role.supervisor": "مشرف المخزن",
   "role.worker": "موظف",
   "role.viewer": "مشاهد",
   "branch.manshia": "فرع المنشيه",
@@ -55,5 +54,10 @@
   "alert.out_of_stock": "نفد المخزون",
   "error.unauthorized": "غير مصرح لك بهذا الإجراء",
   "error.not_found": "العنصر غير موجود",
-  "error.server": "خطأ في الخادم"
+  "error.server": "خطأ في الخادم",
+  "presence.online_users": "المستخدمون المتصلون",
+  "presence.offline_banner": "أنت غير متصل — آخر تحديث",
+  "presence.no_users": "لا يوجد مستخدمون متصلون الآن",
+  "presence.connected_since": "متصل منذ {{minutes}} دقيقة",
+  "presence.all_branches": "كل الفروع"
 }

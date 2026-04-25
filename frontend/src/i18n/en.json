@@ -27,7 +27,6 @@
   "action.export": "Export",
   "role.owner": "System Owner",
   "role.admin": "System Admin",
-  "role.supervisor": "Warehouse Supervisor",
   "role.worker": "Worker",
   "role.viewer": "Viewer",
   "branch.manshia": "Manshia Branch",
@@ -55,5 +54,10 @@
   "alert.out_of_stock": "Out of Stock",
   "error.unauthorized": "You are not authorized to perform this action",
   "error.not_found": "Item not found",
-  "error.server": "Server error"
+  "error.server": "Server error",
+  "presence.online_users": "Online Users",
+  "presence.offline_banner": "You are offline — last updated",
+  "presence.no_users": "No users are currently online",
+  "presence.connected_since": "Connected for {{minutes}} min",
+  "presence.all_branches": "All Branches"
 }

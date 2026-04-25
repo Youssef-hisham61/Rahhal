@@ -22,7 +22,7 @@ async function seedOwner() {
   const hash = await bcrypt.hash(OWNER_PASSWORD, 12);
 
   await pool.query(
-    `INSERT INTO users (name_ar, name_en, email, password_hash, role, store_id, active)
+    `INSERT INTO users (name_ar, name_en, email, password_hash, role, warehouse_id, active)
      VALUES ($1, $2, $3, $4, 'owner', NULL, true)`,
     [OWNER_NAME_AR, OWNER_NAME_EN, OWNER_EMAIL, hash],
   );

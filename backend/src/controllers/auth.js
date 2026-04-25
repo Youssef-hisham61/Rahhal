@@ -3,6 +3,22 @@ const jwt = require("jsonwebtoken");
 const { query } = require("../db/pool");
 const { refreshToken: verifyRefreshToken } = require("../middleware/auth");
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const USER_JOIN_QUERY = `
+  SELECT
+    u.id, u.name_ar, u.name_en, u.email, u.role, u.warehouse_id, u.active, u.created_at,
+    w.name AS warehouse_name,
+    w.name_en AS warehouse_name_en,
+    s.id AS store_id,
+    s.name AS store_name,
+    s.name_en AS store_name_en,
+    s.color AS store_color
+  FROM users u
+  LEFT JOIN warehouses w ON u.warehouse_id = w.id
+  LEFT JOIN stores s ON w.store_id = s.id
+  WHERE u.id = $1`;
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function generateAccessToken(user) {
@@ -10,7 +26,7 @@ function generateAccessToken(user) {
     {
       id: user.id,
       role: user.role,
-      store_id: user.store_id,
+      warehouse_id: user.warehouse_id,
       name_ar: user.name_ar,
       name_en: user.name_en,
     },
@@ -34,13 +50,7 @@ function getExpiresAt(expiry) {
   return new Date(Date.now() + seconds * 1000);
 }
 
-async function writeAuditLog({
-  user_id,
-  user_role,
-  action,
-  store_id,
-  ip_address,
-}) {
+async function writeAuditLog({ user_id, user_role, action, store_id, ip_address }) {
   await query(
     `INSERT INTO audit_logs (user_id, user_role, action, store_id, ip_address)
      VALUES ($1, $2, $3, $4, $5)`,
@@ -62,8 +72,18 @@ async function login(req, res) {
 
   try {
     const result = await query(
-      `SELECT id, name_ar, name_en, email, password_hash, role, store_id, active
-       FROM users WHERE email = $1`,
+      `SELECT
+         u.id, u.name_ar, u.name_en, u.email, u.password_hash, u.role, u.warehouse_id, u.active,
+         w.name AS warehouse_name,
+         w.name_en AS warehouse_name_en,
+         s.id AS store_id,
+         s.name AS store_name,
+         s.name_en AS store_name_en,
+         s.color AS store_color
+       FROM users u
+       LEFT JOIN warehouses w ON u.warehouse_id = w.id
+       LEFT JOIN stores s ON w.store_id = s.id
+       WHERE u.email = $1`,
       [email.toLowerCase().trim()],
     );
 
@@ -119,7 +139,13 @@ async function login(req, res) {
         name_en: user.name_en,
         email: user.email,
         role: user.role,
+        warehouse_id: user.warehouse_id,
+        warehouse_name: user.warehouse_name,
+        warehouse_name_en: user.warehouse_name_en,
         store_id: user.store_id,
+        store_name: user.store_name,
+        store_name_en: user.store_name_en,
+        store_color: user.store_color,
       },
     });
   } catch (err) {
@@ -151,12 +177,7 @@ async function refresh(req, res) {
       });
     }
 
-    const result = await query(
-      `SELECT id, name_ar, name_en, role, store_id, active
-       FROM users WHERE id = $1`,
-      [payload.id],
-    );
-
+    const result = await query(USER_JOIN_QUERY, [payload.id]);
     const user = result.rows[0];
 
     if (!user || !user.active) {
@@ -200,7 +221,7 @@ async function logout(req, res) {
       user_id: req.user.id,
       user_role: req.user.role,
       action: "logout",
-      store_id: req.user.store_id,
+      store_id: null,
       ip_address: ip,
     });
 
@@ -219,12 +240,7 @@ async function logout(req, res) {
 
 async function me(req, res) {
   try {
-    const result = await query(
-      `SELECT id, name_ar, name_en, email, role, store_id, active, created_at
-       FROM users WHERE id = $1`,
-      [req.user.id],
-    );
-
+    const result = await query(USER_JOIN_QUERY, [req.user.id]);
     const user = result.rows[0];
 
     if (!user) {

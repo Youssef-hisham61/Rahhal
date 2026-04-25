@@ -30,11 +30,10 @@ An Arabic-first, multi-branch warehouse management system built for Egyptian bus
 
 | Role       | Arabic                                                        |
 | ---------- | ------------------------------------------------------------- |
-| owner      | صاحب النظام — single hardcoded user, not scoped to any branch |
-| admin      | مدير النظام                                                   |
-| supervisor | مشرف المخزن                                                   |
-| worker     | موظف                                                          |
-| viewer     | مشاهد                                                         |
+| owner  | صاحب النظام — single hardcoded user, not scoped to any branch |
+| admin  | مدير النظام                                                   |
+| worker | موظف                                                          |
+| viewer | مشاهد                                                         |
 
 ## Setup
 

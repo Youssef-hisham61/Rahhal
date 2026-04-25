@@ -1,6 +1,6 @@
 -- ─── Enums ────────────────────────────────────────────────────────────────────
 DO $$ BEGIN
-  CREATE TYPE user_role AS ENUM ('owner', 'admin', 'supervisor', 'worker', 'viewer');
+  CREATE TYPE user_role AS ENUM ('owner', 'admin', 'worker', 'viewer');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(200) UNIQUE NOT NULL,
   password_hash VARCHAR(200) NOT NULL,
   role user_role NOT NULL DEFAULT 'worker',
-  store_id UUID REFERENCES stores(id),
+  warehouse_id UUID REFERENCES warehouses(id),
   active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

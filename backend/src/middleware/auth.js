@@ -16,7 +16,7 @@ async function authenticate(req, res, next) {
     req.user = {
       id: payload.id,
       role: payload.role,
-      store_id: payload.store_id,
+      warehouse_id: payload.warehouse_id,
       name_ar: payload.name_ar,
       name_en: payload.name_en,
     };
