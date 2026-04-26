@@ -201,6 +201,10 @@ body,
   animation: shake 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 [data-density="compact"] {
   --row-h: 40px;
   --cell-pad: 8px 12px;

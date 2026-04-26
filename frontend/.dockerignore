@@ -6,3 +6,4 @@ postgres_data
 .env.docker
 .DS_Store
 CLAUDE.md
+CONTEXT_FOR_NEXT_CHAT.md

@@ -6,3 +6,4 @@ dist/
 postgres_data/
 .env.docker
 CLAUDE.md
+CONTEXT_FOR_NEXT_CHAT.md
