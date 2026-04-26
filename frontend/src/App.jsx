@@ -3,6 +3,7 @@ import Layout from './components/Layout';
 import Login from './pages/Login';
 import Branches from './pages/Branches';
 import Users from './pages/Users';
+import Warehouses from './pages/Warehouses';
 import { useT } from './hooks/useT';
 
 function ProtectedRoute({ children, titleKey = '' }) {
@@ -31,7 +32,7 @@ export default function App() {
       <Route path="/settings/products"   element={<ProtectedRoute titleKey="nav.products"><Page titleKey="nav.products" /></ProtectedRoute>} />
       <Route path="/settings/categories" element={<ProtectedRoute titleKey="nav.categories"><Page titleKey="nav.categories" /></ProtectedRoute>} />
       <Route path="/settings/merchants"  element={<ProtectedRoute titleKey="label.merchant"><Page titleKey="label.merchant" /></ProtectedRoute>} />
-      <Route path="/settings/warehouses" element={<ProtectedRoute titleKey="nav.warehouses"><Page titleKey="nav.warehouses" /></ProtectedRoute>} />
+      <Route path="/settings/warehouses" element={<ProtectedRoute titleKey="nav.warehouses"><Warehouses /></ProtectedRoute>} />
       <Route path="/settings/branches"   element={<ProtectedRoute titleKey="nav.branches"><Branches /></ProtectedRoute>} />
       <Route path="/settings/users"      element={<ProtectedRoute titleKey="nav.users"><Users /></ProtectedRoute>} />
       <Route path="/notifications"       element={<ProtectedRoute titleKey="nav.notifications"><Page titleKey="nav.notifications" /></ProtectedRoute>} />
